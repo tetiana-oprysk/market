@@ -4,6 +4,29 @@
 
 {% if session['logged_in'] %}
     <h5>Welcome, {{session['first_name'] }}</h5>
+<hr>
 {% endif %}
+
+{% if session['logged_in'] %}
+    {% if session['first_name'] == 'admin' %}
+        <a href="/add_jewelry" class="btn btn-outline-success btn-lg btn-block" role="button" aria-pressed="true">Add New Jewelry</a>
+        <hr>
+    {% endif %}
+{% endif %}
+
+<div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+  <div class="btn-group" role="group">
+    <button id="btnGroupDrop1" type="button" class="btn btn-outline-info btn-lg btn-block dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Categories
+    </button>
+    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+      <a class="dropdown-item" href="/rings">Rings</a>
+      <a class="dropdown-item" href="/necklaces">Necklaces</a>
+      <a class="dropdown-item" href="#">Bracelets</a>
+      <a class="dropdown-item" href="#">Earrings</a>
+      <a class="dropdown-item" href="/all_jewelry">All Jewelry</a>
+    </div>
+  </div>
+</div>
 
 {% endblock body %}

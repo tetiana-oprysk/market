@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, TextAreaField, IntegerField, BooleanField, FloatField
 from wtforms.validators import Length, EqualTo, Email, DataRequired, ValidationError
 from wtforms.fields.html5 import DateField
 from market.models.user_models import User
@@ -29,3 +29,16 @@ class LoginForm(FlaskForm):
     email = StringField(label='E-mail Address:', validators=[Email(), DataRequired()])
     password = PasswordField(label='Password:', validators=[DataRequired()])
     submit = SubmitField(label='Login')
+
+
+class AddJewelryForm(FlaskForm):
+    name = StringField(label='Name of Jewelry:', validators=[Length(min=10, max=100), DataRequired()])
+    short_description = StringField(label='Short Description:', validators=[Length(min=10, max=200), DataRequired()])
+    full_description = TextAreaField(label='Full Description:', validators=[Length(min=10, max=1000), DataRequired()])
+    price = IntegerField(label='Price:', validators=[Length(min=1, max=10), DataRequired()])
+    weight = FloatField(label='Weight:', validators=[Length(min=1, max=10), DataRequired()])
+    is_on_discount = BooleanField(label='On Discount?')
+    discount = IntegerField(label='Discount:', validators=[Length(min=1, max=10)])
+    is_available = BooleanField(label='Is Available?')
+    category_id = IntegerField(label='Category ID:', validators=[Length(min=1, max=10), DataRequired()])
+    submit = SubmitField(label='Add!')

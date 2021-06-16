@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+{% from "includes/formhelpers.html" import render_field %}
+<a href="/index" class="btn btn-outline-info btn-lg btn-block" role="button" aria-pressed="true">Go to the main page</a>
+{% if session['first_name'] == 'admin' %}
+    <a href="/add_jewelry" class="btn btn-outline-success btn-lg btn-block" role="button" aria-pressed="true">Add New Jewelry!</a>
+    <br>
+{% endif %}
+<h4>
+    <strong>
+        Rings
+    </strong>
+</h4>
+
+<table class="table">
+  <thead>
+    <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Name</th>
+        <th scope="col">Short Desc.</th>
+        <th scope="col">Full Desc.</th>
+        <th scope="col">Price</th>
+        <th scope="col">Weight</th>
+        <th scope="col">Is on Disc.</th>
+        <th scope="col">Discount</th>
+        <th scope="col">Is Available</th>
+        <th scope="col">Category ID</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in rows %}
+      {% if row[9] == 2 %}
+        <tr>
+            <th scope="row">{{ row[0] }}</th>
+            <td>{{ row[1] }}</td>
+            <td>{{ row[2] }}</td>
+            <td>{{ row[3] }}</td>
+            <td>{{ row[4] }}$</td>
+            <td>{{ row[5] }} gr.</td>
+            {% if row[6] == 1 %}
+                <td>Yes</td>
+            {% else %}
+                <td>No</td>
+            {% endif %}
+            <td>{{ row[7] }}</td>
+            {% if row[8] == 1 %}
+                <td>Yes</td>
+            {% else %}
+                <td>No</td>
+            {% endif %}
+            <td>{{ row[9] }}</td>
+        </tr>
+      {% endif %}
+    {% endfor %}
+  </tbody>
+</table>
+
+
+{% endblock body %}

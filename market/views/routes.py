@@ -3,10 +3,13 @@ from market import app
 from market import db
 from market import jwt_redis_blocklist
 from flask import render_template, redirect, url_for, flash, request, session, logging, jsonify
-from market.views.forms import RegisterForm, LoginForm
+from market.views.forms import RegisterForm, LoginForm, AddJewelryForm
 from market.models.user_models import User
+from market.models.item_models import Jewelry
 import datetime
 import uuid
+import sqlite3
+import os.path
 
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
@@ -64,30 +67,85 @@ def login():
 
             session['first_name'] = attempted_user.first_name
 
-            redirect(url_for('index'))
-
-            return jsonify({
+            jsonify({
                 'token': token,
                 'user': attempted_user.public_id,
                 'token_expire_to': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
             })
 
-            # After successful login, redirecting to home page
+            return redirect(url_for('index'))
 
         else:
             flash('Username and password are not match! Please try again!', category='danger')
     return render_template('login.html', form=form)
 
 
-@app.route('/logout', methods=['DELETE'])
-@jwt_required()
+@app.route('/logout', methods=['GET', 'POST', 'DELETE'])
+# @jwt_required()
 def logout():
     # Removing data from session by setting logged_flag to False
     session['logged_in'] = False
 
-    jti = get_jwt()["jti"]
-    jwt_redis_blocklist.set(jti, "", ex=datetime.timedelta(minutes=30))
-    return jsonify(msg="Access token revoked")
+    # jti = get_jwt()["jti"]
+    # jwt_redis_blocklist.set(jti, "", ex=datetime.timedelta(minutes=30))
+    # return jsonify(msg="Access token revoked")
 
-    # return redirect(url_for('index'))
+    return redirect(url_for('index'))
 
+
+@app.route('/add_jewelry', methods=['GET', 'POST'])
+def add_jewelry():
+    if session['first_name'] == 'admin':
+        form = AddJewelryForm(request.form)
+        if request.method == 'POST' and form.validate:
+            jewelry_to_create = Jewelry(name=form.name.data,
+                                  short_description=form.short_description.data,
+                                  full_description=form.full_description.data,
+                                  price=form.price.data,
+                                  weight=form.weight.data,
+                                  is_on_discount=form.is_on_discount.data,
+                                  discount=form.discount.data,
+                                  is_available=form.is_available.data,
+                                  category_id=form.category_id.data)
+            db.session.add(jewelry_to_create)
+            db.session.commit()
+            return render_template('success_add_jewelry.html')
+        if form.errors != {}:  # If there are not errors from the validations
+            for err_msg in form.errors.values():
+                flash(f'There was an error with creating a jewelry: {err_msg}', category='danger')
+        return render_template('add_jewelry.html', form=form)
+    else:
+        return redirect(url_for('something_went_wrong'))
+
+
+@app.route('/something_went_wrong', methods=['GET', 'POST'])
+def something_went_wrong():
+    return render_template('something_went_wrong.html')
+
+
+def print_db():
+    db_path = os.path.join("market/market.db")
+    with sqlite3.connect(db_path) as db:
+        c = db.cursor()
+        c.execute('SELECT * FROM jewelry')
+        return c.fetchall()
+
+
+@app.route('/all_jewelry', methods=['GET', 'POST'])
+def print_all_jewelry():
+    return render_template('all_jewelry.html', rows=print_db())
+
+
+@app.route('/rings', methods=['GET', 'POST'])
+def print_rings():
+    return render_template('rings.html', rows=print_db())
+
+
+@app.route('/necklaces', methods=['GET', 'POST'])
+def print_necklaces():
+    return render_template('necklaces.html', rows=print_db())
+
+
+@app.route('/cart', methods=['GET', 'POST'])
+def cart():
+    pass
